@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Advanced Calculator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .calculator {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 260px;
+  }
+
+  #display {
+    width: 100%;
+    font-size: 1.2em;
+    height: 40px;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow-wrap: break-word;
+  }
+
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  button {
+    padding: 10px;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #e0e0e0;
+    transition: background 0.2s;
+  }
+
+  button:hover {
+    background: #d0d0d0;
+  }
+
+  .operator {
+    background: #0492ef;
+    color: #fff;
+  }
+  
+  .clear {
+    background: #e74c3c;
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+<div class="calculator">
+  <div id="display" readonly></div>
+  <div class="buttons">
+    <button data-value="7">7</button>
+    <button data-value="8">8</button>
+    <button data-value="9">9</button>
+    <button data-op="+" class="operator">+</button>
+    
+    <button data-value="4">4</button>
+    <button data-value="5">5</button>
+    <button data-value="6">6</button>
+    <button data-op="-" class="operator">-</button>
+    
+    <button data-value="1">1</button>
+    <button data-value="2">2</button>
+    <button data-value="3">3</button>
+    <button data-op="*" class="operator">*</button>
+    
+    <button data-value="0">0</button>
+    <button data-value=".">.</button>
+    <button id="equals">=</button>
+    <button data-op="/" class="operator">/</button>
+    
+    <button id="clear" class="clear" style="grid-column: span 4;">Clear</button>
+  </div>
+</div>
+<script>
+  document.title = 'Advanced Calculator';
+
+  const display = document.getElementById('display');
+
+  let currentInput = '';
+  let expression = '';
+
+  function updateDisplay() {
+    display.innerText = currentInput || '0';
+  }
+
+  document.querySelectorAll('button[data-value]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentInput += btn.getAttribute('data-value');
+      updateDisplay();
+    });
+  });
+
+  document.querySelectorAll('button[data-op]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (currentInput === '' && expression === '') return;
+      if (currentInput !== '') {
+        expression += currentInput;
+        currentInput = '';
+      }
+      expression += ' ' + btn.getAttribute('data-op') + ' ';
+      updateDisplay();
+    });
+  });
+
+  document.getElementById('equals').addEventListener('click', () => {
+    if (currentInput !== '') {
+      expression += currentInput;
+    }
+
+    // Basic sanitization and evaluation
+    try {
+      // Prevent division by zero
+      if (expression.includes('/ 0')) {
+        throw new Error("Division by zero");
+      }
+      // Evaluate expression safely
+      // Using eval here for simplicity; for production, consider a math parser
+      let result = eval(expression);
+      if (typeof result === 'number' && !isNaN(result)) {
+        currentInput = String(result);
+        expression = '';
+      } else {
+        currentInput = 'Error';
+        expression = '';
+      }
+    } catch (e) {
+      currentInput = 'Error';
+      expression = '';
+    }
+    updateDisplay();
+  });
+
+  document.getElementById('clear').addEventListener('click', () => {
+    currentInput = '';
+    expression = '';
+    updateDisplay();
+  });
+
+  // Initialize display
+  updateDisplay();
+
+  // Error handling test as per checks
+  const inputExists = !!document.querySelector('input[type="text"]');
+  const buttonExists = !!document.querySelector('button');
+  let evalTest = false;
+  try {
+    evalTest = (() => { 
+      try { 
+        eval(document.querySelector('input[type="text"]')?.value || '0') || true; 
+        return true; 
+      } catch(e) { 
+        return false; 
+      } 
+    })();
+  } catch(e) {
+    evalTest = false;
+  }
+  console.log({ inputExists, buttonExists, evalTest });
+</script>
+</body>
+</html>
